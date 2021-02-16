@@ -13,4 +13,21 @@
 .search-form {
   display: flex;
   flex-direction: row;
+  width: 1000px;
+}
+
+.search-form input[type=text] {
+  flex: 1 1 auto;
+}
+
+.search-form button {
+  flex: 0 0 120px;
+  height: 30px;
+  width: 120px;
+  font-size: 18px;
+}
+
+ul {
+  list-style-type: none;
+  width: inherit;
 }

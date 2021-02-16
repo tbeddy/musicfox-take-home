@@ -1,16 +1,24 @@
 import React, { SyntheticEvent, useState } from 'react';
 import axios from 'axios';
 import './App.css';
+import { ArtistResponse } from './Interfaces';
+import ArtistData from './ArtistData';
 
 function App() {
   const [text, setText] = useState("");
-  const [results, setResults] = useState("");
+  const [responseText, setResponseText] = useState("");
+  const [results, setResults] = useState([]);
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     axios.get(`/api/query/${text}`)
       .then(res => {
-        setResults(res.data)
+        setResponseText(`You searched for "${text}"`);
+        setResults(res.data.similarArtists.map((data: ArtistResponse) => (
+          <li key={data.rank}>
+            {ArtistData(data)}
+          </li>
+        )))
       });
   }
 
@@ -30,9 +38,12 @@ function App() {
         />
         <button>Submit</button>
       </form>
-      <div className="search-results">
-        {results}
+      <div>
+        {responseText}
       </div>
+      <ul className="search-results">
+        {results}
+      </ul>
     </div>
   );
 }
