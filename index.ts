@@ -34,7 +34,7 @@ const findNamesInList = (text: string): string[] => {
   return answers;
 }
 
-app.get('/api/query/:text', (req, res) => {
+app.post('/api/query/:text', (req, res) => {
   const names = findNamesInList(req.params.text);
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
