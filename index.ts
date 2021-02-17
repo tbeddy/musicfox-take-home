@@ -14,7 +14,51 @@ const app = express();
 const PORT = 8000;
 
 /*
-We'll send back an extremely simple search for now.
+We'll use the Levenshtein distance (aka the edit distance) as our measurement
+of string difference. It shows the fewest number of insertions, deletions, and
+substitutions of characters required to change one string into another. It's one
+of the most famous measurements for string difference, so it seems like a good
+choice here.
+Adapted from the Java example given in this lecture:
+https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm
+*/
+const levenshtein = (str1: string, str2: string): number => {
+  const n = str1.length;
+  const m = str2.length;
+
+  // If either string is empty, we'll return the length of the other string,
+  // because that's how many insertions we would need to make.
+  if (n === 0) return m;
+  if (m === 0) return n;
+
+  // We'll intialize the matrix with a row representing the first word
+  // and rows filled zeros we'll change over the course of the algorithm. 
+  let matrix: number[][] = [[...Array(m+1).keys()]];
+  for (let i = 1; i <= n; i++) {
+    matrix.push(Array(m+1).fill(0));
+  }
+
+  // The first element of each row will represent the second word.
+  for (let j = 0; j <= n; j++) {
+    matrix[j][0] = j;
+  }
+
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i-1][j]+1,     // deletion
+        matrix[i][j-1]+1,     // insertion
+        matrix[i-1][j-1]+cost // substitution or no change
+      );
+    }
+  }
+
+  return matrix[n][m];
+}
+
+/*
+We'll send back a simple, inefficient search for now.
 This search just checks if the words from the search text
 are within the band names, without any case sensitivity.
 We're searching for at most 10 names for now.
@@ -25,7 +69,7 @@ const findNamesInList = (text: string): string[] => {
     if (answers.length >= 10) break;
     const bandWords = bandname.split(" ");
     for (let word of text.split(" ")) {
-      if (bandWords.indexOf(word) !== -1) {
+      if (levenshtein(word, bandname) < 2) {
         answers.push(bandname);
         break;
       }
