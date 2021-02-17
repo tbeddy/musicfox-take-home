@@ -69,7 +69,7 @@ const findNamesInList = (text: string): string[] => {
     if (answers.length >= 10) break;
     const bandWords = bandname.split(" ");
     for (let word of text.split(" ")) {
-      if (levenshtein(word, bandname) < 2) {
+      if (bandWords.some(w => levenshtein(word, w) < 2)) {
         answers.push(bandname);
         break;
       }
