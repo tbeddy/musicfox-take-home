@@ -14,7 +14,10 @@ when searching. One drawback to this approach is that groups such as
 'The The' are going to be unsearchable, though they already are pretty
 unsearchable...
 */
-const commonWords = ["the", "a", "an", "of", "and", "to"];
+const filterOutCommonWords = (words: string[]): string[] => {
+  const commonWords = ["the", "a", "an", "of", "and", "to"];
+  return words.filter(w => commonWords.indexOf(w) === -1);
+}
 
 /*
 Every time we search, we're going to split up the data into words,
@@ -28,10 +31,8 @@ const artistNames: string[] = data.toString().split("\n")
 
 const artistData: {[name: string]: string[]} = {};
 for (let artistName of artistNames) {
-  const words = artistName.split(" ")
-    .map(w => w.toLowerCase())
-    .filter(w => commonWords.indexOf(w) === -1);
-    artistData[artistName] = words;
+  const words = artistName.split(" ").map(w => w.toLowerCase())
+  artistData[artistName] = filterOutCommonWords(words);
 }
   
 /*
@@ -43,7 +44,7 @@ choice here.
 Adapted from the Java example given in this lecture:
 https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm
 */
-const levenshtein = (str1: string, str2: string): number => {
+const levenshtein = (str1: string = "", str2: string = ""): number => {
   const n = str1.length;
   const m = str2.length;
 
@@ -79,29 +80,46 @@ const levenshtein = (str1: string, str2: string): number => {
 }
 
 /*
+We'll find the average of the Levenshtein distances between the corresponding
+words in the search and each artist name. One disadvantage to this approach is
+that if you forget a word in your search, the alignment will be off and you
+won't find what you're looking for.
+*/
+const levenshteinAverage = (words1: string[], words2: string[]): number => {
+  const maxLength = Math.max(words1.length, words2.length);
+  let sum = 0;
+  for (let i = 0; i < maxLength; i++) {
+    sum += levenshtein(words1[i], words2[i]);
+  }
+  return sum / maxLength;
+}
+
+/*
 We're searching for at most 10 names for now.
 */
-const findNamesInList = (text: string): string[] => {
+const findArtists = (text: string): string[] => {
   let answers = [];
-  for (let artistName of Object.keys(artistData)) {
+  for (let artistName of artistNames) {
     if (answers.length >= 10) break;
     const artistWords = artistData[artistName];
-    for (let word of text.split(" ")) {
-      word = word.toLowerCase();
-      if (artistWords.some(aw => levenshtein(word, aw) < 2)) {
-        answers.push(artistName);
-        break;
-      }
+    const searchWords = filterOutCommonWords(
+      text.split(" ").map(w => w.toLowerCase()));
+    const distance = levenshteinAverage(searchWords, artistWords);
+    if (distance < 2.0) {
+      answers.push({ distance, artistName });
     }
   }
-  return answers;
+  const sortedAnswers = answers
+    .sort((x, y) => x.distance -y.distance)
+    .map(w => w.artistName);
+  return sortedAnswers;
 }
 
 const app = express();
 const PORT = 8000;
 
 app.post('/api/query/:text', (req, res) => {
-  const names = findNamesInList(req.params.text);
+  const names = findArtists(req.params.text);
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
     "artistName": name
