@@ -27,7 +27,8 @@ let's make a hash map with the artist names as the keys and the processed
 words as the values.
 */
 const artistNames: string[] = data.toString().split("\n")
-  .map((s: string) => s.trim());
+  .map((s: string) => s.trim())
+  .filter(w => w !== "");
 
 const artistData: {[name: string]: string[]} = {};
 for (let artistName of artistNames) {
