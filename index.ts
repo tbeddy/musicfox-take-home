@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import fs from 'fs';
 
 /*
@@ -98,7 +99,7 @@ const levenshteinAverage = (words1: string[], words2: string[]): number => {
 /*
 We're searching for at most 10 names for now.
 */
-const findArtists = (text: string): string[] => {
+const findArtists = (text: string, accuracy: number): string[] => {
   let answers = [];
   for (let artistName of artistNames) {
     if (answers.length >= 10) break;
@@ -106,7 +107,7 @@ const findArtists = (text: string): string[] => {
     const searchWords = filterOutCommonWords(
       text.split(" ").map(w => w.toLowerCase()));
     const distance = levenshteinAverage(searchWords, artistWords);
-    if (distance < 2.0) {
+    if (distance <= accuracy) {
       answers.push({ distance, artistName });
     }
   }
@@ -118,15 +119,17 @@ const findArtists = (text: string): string[] => {
 
 const app = express();
 const PORT = 8000;
+app.use(bodyParser.json());
 
-app.post('/api/query/:text', (req, res) => {
-  const names = findArtists(req.params.text);
+app.post('/api/query/', (req, res) => {
+  const { text, accuracy } = req.body;
+  const names = findArtists(text, Number(accuracy));
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
     "artistName": name
   }));
   return res.json({
-    "searchText": req.params.text,
+    "searchText": text,
     "similarArtists": nameData
   })
 });

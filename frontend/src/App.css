@@ -10,10 +10,14 @@
   font-size: calc(10px + 2vmin);
 }
 
-.search-form {
+.search-form, .search-controls {
   display: flex;
   flex-direction: row;
   width: 1000px;
+}
+
+.search-controls {
+  justify-content: space-around;
 }
 
 .search-form input[type=text] {
