@@ -11,6 +11,7 @@ function App() {
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
+    if (text === "") return;
     axios.post(`/api/query/${text}`)
       .then(res => {
         setResponseText(`You searched for "${text}"`);
@@ -21,6 +22,10 @@ function App() {
         )))
       });
   }
+
+  let resultsDisplay = (results.length === 0) && (responseText.length !== 0) ?
+    (<p className="no-results">No results found :(</p>) :
+    (<ul className="search-results">{results}</ul>);
 
   return (
     <div className="app">
@@ -41,9 +46,7 @@ function App() {
       <div>
         {responseText}
       </div>
-      <ul className="search-results">
-        {results}
-      </ul>
+      {resultsDisplay}
     </div>
   );
 }
