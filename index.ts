@@ -14,7 +14,7 @@ when searching. One drawback to this approach is that groups such as
 'The The' are going to be unsearchable, though they already are pretty
 unsearchable...
 */
-const commonWords = ["the", "a", "an", "of", "and"];
+const commonWords = ["the", "a", "an", "of", "and", "to"];
 
 /*
 Every time we search, we're going to split up the data into words,
@@ -79,9 +79,6 @@ const levenshtein = (str1: string, str2: string): number => {
 }
 
 /*
-We'll send back a simple, inefficient search for now.
-This search just checks if the words from the search text
-are within the band names, without any case sensitivity.
 We're searching for at most 10 names for now.
 */
 const findNamesInList = (text: string): string[] => {
