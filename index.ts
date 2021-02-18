@@ -7,12 +7,33 @@ We'll read the data synchronously since we don't want the server
 to be able to do anything if we don't have this set up first.
 */
 const data: Buffer = fs.readFileSync('data.txt');
-const bandnames: string[] = data.toString().split("\n")
+
+/*
+We'll filter out common words that would bring up too many false positives
+when searching. One drawback to this approach is that groups such as
+'The The' are going to be unsearchable, though they already are pretty
+unsearchable...
+*/
+const commonWords = ["the", "a", "an", "of", "and"];
+
+/*
+Every time we search, we're going to split up the data into words,
+make them lowercase, and filter out the common words, so let's get that
+work out of the way now. Rather than just store the strings in an array,
+let's make a hash map with the artist names as the keys and the processed
+words as the values.
+*/
+const artistNames: string[] = data.toString().split("\n")
   .map((s: string) => s.trim());
 
-const app = express();
-const PORT = 8000;
-
+const artistData: {[name: string]: string[]} = {};
+for (let artistName of artistNames) {
+  const words = artistName.split(" ")
+    .map(w => w.toLowerCase())
+    .filter(w => commonWords.indexOf(w) === -1);
+    artistData[artistName] = words;
+}
+  
 /*
 We'll use the Levenshtein distance (aka the edit distance) as our measurement
 of string difference. It shows the fewest number of insertions, deletions, and
@@ -65,18 +86,22 @@ We're searching for at most 10 names for now.
 */
 const findNamesInList = (text: string): string[] => {
   let answers = [];
-  for (let bandname of bandnames) {
+  for (let artistName of Object.keys(artistData)) {
     if (answers.length >= 10) break;
-    const bandWords = bandname.split(" ");
+    const artistWords = artistData[artistName];
     for (let word of text.split(" ")) {
-      if (bandWords.some(w => levenshtein(word, w) < 2)) {
-        answers.push(bandname);
+      word = word.toLowerCase();
+      if (artistWords.some(aw => levenshtein(word, aw) < 2)) {
+        answers.push(artistName);
         break;
       }
     }
   }
   return answers;
 }
+
+const app = express();
+const PORT = 8000;
 
 app.post('/api/query/:text', (req, res) => {
   const names = findNamesInList(req.params.text);
