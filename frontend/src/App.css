@@ -3,17 +3,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  height: 100vh;
 }
 
 .app-header {
   font-size: calc(10px + 2vmin);
+  padding: 20px;
 }
 
 .search-form, .search-controls {
   display: flex;
   flex-direction: row;
   width: 1000px;
+  padding: 15px;
 }
 
 .search-controls {
@@ -31,11 +33,18 @@
   font-size: 18px;
 }
 
+.control input[type=number] {
+  width: 50px;
+}
+
 .no-results {
   font-size: 25px;
 }
 
-ul {
+.search-results {
   list-style-type: none;
   width: inherit;
+  max-height: 300px;
+  overflow-y: scroll;
+  border: 1px black solid;
 }

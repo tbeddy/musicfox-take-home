@@ -28,14 +28,14 @@ function App() {
       });
   }
 
-  let resultsDisplay = (results.length === 0) && (responseText.length !== 0) ?
-    (<p className="no-results">No results found :(</p>) :
+  let resultsDisplay = (results.length === 0) ?
+    responseText.length === 0 ? null : (<p className="no-results">No results found :(</p>) :
     (<ul className="search-results">{results}</ul>);
 
   return (
     <div className="app">
       <header className="app-header">
-        Search:
+        Find your favorite artists now:
       </header>
       <form
         className="search-form"
@@ -49,19 +49,28 @@ function App() {
         <button>Submit</button>
       </form>
       <div className="search-controls">
-        <label>Accuracy
-          <input
-            type="range" min="0.0" max="3.0" step="0.1" value={accuracy}
-            onChange={e => setAccuracy(Number(e.currentTarget.value))}
-          />
-        </label>
-        <label>Maximum Number of Results
-          <input
-            type="number" min="0" value={maxResults}
-            onChange={e => setMaxResults(Number(e.currentTarget.value))}
-          />
-          (0 means as many as possible)
-        </label>
+        <div className="control">
+          <label htmlFor="accuracy-input">Accuracy</label>
+          <div>
+            Exact
+            <input
+              id="accuracy-input"
+              type="range" min="0.0" max="3.0" step="0.1" value={accuracy}
+              onChange={e => setAccuracy(Number(e.currentTarget.value))}
+            />
+            Not So Much
+          </div>
+        </div>
+        <div className="control">
+          <label htmlFor="max-input">Maximum number of results (0 means as many as possible)</label>
+          <div>
+            <input
+              id="max-input"
+              type="number" min="0" value={maxResults}
+              onChange={e => setMaxResults(Number(e.currentTarget.value))}
+            />
+          </div>
+        </div>
       </div>
       <div>
         {responseText}
