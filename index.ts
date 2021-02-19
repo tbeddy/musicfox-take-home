@@ -7,7 +7,7 @@ Store all the band names from the local text file.
 We'll read the data synchronously since we don't want the server
 to be able to do anything if we don't have this set up first.
 */
-const data: Buffer = fs.readFileSync('data.txt');
+const data: Buffer = fs.readFileSync('fake_artist_names_mit.txt');
 
 /*
 We'll filter out common words that would bring up too many false positives
