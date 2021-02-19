@@ -98,13 +98,17 @@ const levenshteinAverage = (words1: string[], words2: string[]): number => {
 }
 
 /*
-We're searching for at most 10 names for now.
+We're searching through every single artist and then returning only as many as
+the user requested. Previously, I stopped once we had found enough that passed
+the criteria, but that sometimes left out more relevant results. Searching
+everything isn't terribly efficient (especially if we had the proposed 50
+trillion names), but without a more sophisticated searching method, it's
+probably for the best.
 */
 const findArtists = (text: string, accuracy: number, maxResults: number): string[] => {
   if (maxResults === 0) maxResults = artistNames.length;
   let answers = [];
   for (let artistName of artistNames) {
-    if (answers.length >= maxResults) break;
     const artistWords = artistData[artistName];
     const searchWords = filterOutCommonWords(
       text.split(" ").map(w => w.toLowerCase()));
@@ -116,7 +120,7 @@ const findArtists = (text: string, accuracy: number, maxResults: number): string
   const sortedAnswers = answers
     .sort((x, y) => x.distance -y.distance)
     .map(w => w.artistName);
-  return sortedAnswers;
+  return sortedAnswers.slice(0, maxResults);
 }
 
 const app = express();
@@ -128,7 +132,7 @@ app.post('/api/query/:text', (req, res) => {
   const maxResults = Number(req.body.maxResults);
   const { text } = req.params;
   if (accuracy == NaN || maxResults == NaN || !text) {
-    return res.status(500).send("There was an error...");
+    return res.status(500).send("There was an error with the input...");
   }
   const names = findArtists(text, accuracy, maxResults);
   const nameData = names.map((name: string, idx: number) => ({
