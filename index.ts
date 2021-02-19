@@ -99,10 +99,11 @@ const levenshteinAverage = (words1: string[], words2: string[]): number => {
 /*
 We're searching for at most 10 names for now.
 */
-const findArtists = (text: string, accuracy: number): string[] => {
+const findArtists = (text: string, accuracy: number, maxResults: number): string[] => {
+  if (maxResults === 0) maxResults = artistNames.length;
   let answers = [];
   for (let artistName of artistNames) {
-    if (answers.length >= 10) break;
+    if (answers.length >= maxResults) break;
     const artistWords = artistData[artistName];
     const searchWords = filterOutCommonWords(
       text.split(" ").map(w => w.toLowerCase()));
@@ -122,8 +123,8 @@ const PORT = 8000;
 app.use(bodyParser.json());
 
 app.post('/api/query/', (req, res) => {
-  const { text, accuracy } = req.body;
-  const names = findArtists(text, Number(accuracy));
+  const { text, accuracy, maxResults } = req.body;
+  const names = findArtists(text, Number(accuracy), Number(maxResults));
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
     "artistName": name

@@ -7,13 +7,14 @@ import ArtistData from './ArtistData';
 function App() {
   const [text, setText] = useState("");
   const [accuracy, setAccuracy] = useState(0.0);
+  const [maxResults, setMaxResults] = useState(10);
   const [responseText, setResponseText] = useState("");
   const [results, setResults] = useState([]);
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (text === "") return;
-    axios.post('/api/query/', { text, accuracy })
+    axios.post('/api/query/', { text, accuracy, maxResults })
       .then(res => {
         setResponseText(`You searched for "${text}"`);
         setResults(res.data.similarArtists.map((data: ArtistResponse) => (
@@ -50,6 +51,13 @@ function App() {
             type="range" min="0.0" max="3.0" step="0.1" value={accuracy}
             onChange={e => setAccuracy(Number(e.currentTarget.value))}
           />
+        </label>
+        <label>Maximum Number of Results
+          <input
+            type="number"
+            onChange={e => setMaxResults(Number(e.currentTarget.value))}
+          />
+          (0 means as many as possible)
         </label>
       </div>
       <div>
