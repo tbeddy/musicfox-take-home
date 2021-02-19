@@ -54,7 +54,7 @@ function App() {
         </label>
         <label>Maximum Number of Results
           <input
-            type="number"
+            type="number" min="0" value={maxResults}
             onChange={e => setMaxResults(Number(e.currentTarget.value))}
           />
           (0 means as many as possible)
