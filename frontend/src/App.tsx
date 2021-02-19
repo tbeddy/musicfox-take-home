@@ -14,7 +14,7 @@ function App() {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (text === "") return;
-    axios.post('/api/query/', { text, accuracy, maxResults })
+    axios.post(`/api/query/${text}`, { accuracy, maxResults })
       .then(res => {
         setResponseText(`You searched for "${text}"`);
         setResults(res.data.similarArtists.map((data: ArtistResponse) => (

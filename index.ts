@@ -122,8 +122,9 @@ const app = express();
 const PORT = 8000;
 app.use(bodyParser.json());
 
-app.post('/api/query/', (req, res) => {
-  const { text, accuracy, maxResults } = req.body;
+app.post('/api/query/:text', (req, res) => {
+  const { accuracy, maxResults } = req.body;
+  const { text } = req.params;
   const names = findArtists(text, Number(accuracy), Number(maxResults));
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
