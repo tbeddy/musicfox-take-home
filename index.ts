@@ -29,7 +29,8 @@ words as the values.
 */
 const artistNames: string[] = data.toString().split("\n")
   .map((s: string) => s.trim())
-  .filter(w => w !== "");
+  .filter(w => w !== "")
+  .sort((x, y) => x.localeCompare(y));
 
 const artistData: {[name: string]: string[]} = {};
 for (let artistName of artistNames) {
@@ -123,9 +124,13 @@ const PORT = 8000;
 app.use(bodyParser.json());
 
 app.post('/api/query/:text', (req, res) => {
-  const { accuracy, maxResults } = req.body;
+  const accuracy = Number(req.body.accuracy);
+  const maxResults = Number(req.body.maxResults);
   const { text } = req.params;
-  const names = findArtists(text, Number(accuracy), Number(maxResults));
+  if (accuracy == NaN || maxResults == NaN || !text) {
+    return res.status(500).send("There was an error...");
+  }
+  const names = findArtists(text, accuracy, maxResults);
   const nameData = names.map((name: string, idx: number) => ({
     "rank": idx+1,
     "artistName": name

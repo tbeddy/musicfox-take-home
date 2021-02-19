@@ -22,6 +22,9 @@ function App() {
             {ArtistData(data)}
           </li>
         )))
+      })
+      .catch(err => {
+        setResponseText(err.response.data)
       });
   }
 
